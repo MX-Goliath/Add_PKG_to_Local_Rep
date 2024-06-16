@@ -1,5 +1,5 @@
 # Add_PKG_to_Local_Rep
-A script to add packages from official archlinux repositories to local repositories. The main purpose is to save current versions of packages for "rolling back" versions or for system recovery. It can also be used for local installations of archlinux without the need to connect to the internet. 
+A script to add packages from official archlinux repositories or AUR to local repositories. The main purpose is to save current versions of packages for "rolling back" versions or for system recovery. It can also be used for local installations of archlinux without the need to connect to the internet. 
 
 This script facilitates the process of downloading a package from the Arch Linux repositories and adding it to a local repository. It performs the following steps:
 
