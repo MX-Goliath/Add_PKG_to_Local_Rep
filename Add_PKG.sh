@@ -6,27 +6,42 @@ error() {
     exit 1
 }
 
-# Prompt the user to choose the package source (official repository or AUR)
-read -p "Download the package from the official repository or AUR? (repo/aur): " source
+# Function to prompt for source selection and validate input
+get_source() {
+    local valid=0
+    while [ $valid -eq 0 ]; do
+        read -p "Download package from the official repository or AUR? (repo/aur): " source
+        if [ "$source" == "repo" ] || [ "$source" == "aur" ]; then
+            valid=1
+        else
+            echo "Invalid input. Please choose 'repo' or 'aur'."
+        fi
+    done
+    echo $source
+}
+
+# Get a valid source
+source=$(get_source)
 
 if [ "$source" == "repo" ]; then
-    # Prompt for the package name and local repository path
+    # Prompt for package name and local repository path
     read -p "Enter the package name: " package_name
 elif [ "$source" == "aur" ]; then
     # Prompt for the AUR clone URL
     read -p "Enter the AUR clone URL: " aur_url
     # Extract the package name from the URL
     package_name=$(basename "$aur_url" .git)
-else
-    error "Invalid source choice. Please choose 'repo' or 'aur'."
 fi
 
 # Prompt for the local repository path
 read -p "Enter the local repository path: " repo_path
 
-# Check if the specified local repository path exists
+# Check if the specified local repository path exists and create it if it doesn't
 if [ ! -d "$repo_path" ]; then
-    error "The specified local repository path does not exist."
+    echo "Local repository not found. Creating repository..."
+    mkdir -p "$repo_path" || error "Failed to create local repository."
+else
+    echo "Local repository already exists. Skipping creation."
 fi
 
 if [ "$source" == "repo" ]; then
@@ -35,7 +50,7 @@ if [ "$source" == "repo" ]; then
     sudo pacman -Sw --noconfirm $package_name || error "Failed to download package $package_name."
 
     # Move the package to the local repository
-    echo "Moving the package to the local repository..."
+    echo "Moving package to the local repository..."
     sudo mv /var/cache/pacman/pkg/$package_name-*.pkg.tar.zst "$repo_path" || error "Failed to move the package to the local repository."
 elif [ "$source" == "aur" ]; then
     # Clone the repository from AUR
@@ -43,7 +58,7 @@ elif [ "$source" == "aur" ]; then
     git clone "$aur_url" || error "Failed to clone repository $aur_url."
 
     # Change to the package source directory
-    cd "$package_name" || error "Failed to change to directory $package_name."
+    cd "$package_name" || error "Failed to change directory to $package_name."
 
     # Build the package
     echo "Building package $package_name..."
@@ -53,13 +68,14 @@ elif [ "$source" == "aur" ]; then
     echo "Moving the built package to the local repository..."
     mv *.pkg.tar.zst "$repo_path" || error "Failed to move the built package to the local repository."
 
-    # Change back to the original directory
+    # Return to the original directory
     cd ..
 fi
 
 # Add the package to the local repository database
 echo "Updating the local repository database..."
-repo-add "$repo_path"/your-localrepo.db.tar.gz "$repo_path"/$package_name-*.pkg.tar.zst || error "Failed to update the local repository database."
+repo_add_db="$repo_path/$(basename $repo_path).db.tar.gz"
+repo-add "$repo_add_db" "$repo_path"/$package_name-*.pkg.tar.zst || error "Failed to update the local repository database."
 
 echo "Package $package_name successfully added to the local repository."
 
