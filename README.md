@@ -48,4 +48,8 @@ Enter package name: vim
 Enter local repository path: /path/to/local/repo
 ```
 
+## Update
+- Fixed command-line interface
+- Added support for saving multiple packages by separating them with spaces
+- Added a default local repository
 
