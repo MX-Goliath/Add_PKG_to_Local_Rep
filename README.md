@@ -13,7 +13,6 @@ This script facilitates the process of downloading a package from the Arch Linux
 
 - Arch Linux or an Arch-based distribution.
 - `pacman` package manager.
-- `repo-add` utility.
 
 ## Usage
 
