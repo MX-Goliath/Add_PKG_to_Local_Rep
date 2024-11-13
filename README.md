@@ -51,4 +51,7 @@ Enter local repository path: /path/to/local/repo
 - Fixed command-line interface
 - Added support for saving multiple packages by separating them with spaces
 - Added a default local repository
-
+- Improved interface
+- Added ability to view packages in the local repository
+- Added option to add/remove the local repository in `pacman.conf`
+- Added option to install packages from the local repository
